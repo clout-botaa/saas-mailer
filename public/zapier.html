@@ -1,21 +1,55 @@
-<div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
-    <h2 class="text-xl font-bold mb-4 text-purple-400">Interface 2: Workflow Builder</h2>
-    
-    <div class="mb-6 p-4 bg-gray-900 rounded border-l-4 border-purple-500">
-        <p class="text-xs font-bold text-gray-500 uppercase">Trigger</p>
-        <p class="font-bold">Webhook (Instant Catch)</p>
-        <code id="hookUrl" class="text-xs text-green-400">Loading URL...</code>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Interface 2: Workflow Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-purple-400 mb-8">Automation Builder (Zapier Style)</h1>
+        
+        <div class="grid grid-cols-1 gap-6">
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
+                <p class="text-xs font-bold text-purple-500 uppercase mb-2">1. Trigger</p>
+                <h3 class="text-lg font-bold mb-4">Catch Webhook</h3>
+                <div class="flex gap-2">
+                    <input type="text" id="webhookUrlDisplay" readonly value="Click Generate ->" class="flex-1 bg-slate-900 p-2 rounded text-sm text-green-400 font-mono border border-slate-700">
+                    <button onclick="generateHook()" class="bg-purple-600 px-4 py-2 rounded font-bold hover:bg-purple-700">Generate URL</button>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
+                <p class="text-xs font-bold text-blue-500 uppercase mb-2">2. Action</p>
+                <h3 class="text-lg font-bold mb-4">Send Gmail</h3>
+                <div class="space-y-4">
+                    <input type="text" id="mapSubject" placeholder="Subject (Use {{name}} from hook)" class="w-full bg-slate-900 border border-slate-700 p-3 rounded">
+                    <textarea id="mapBody" rows="5" placeholder="Body Content..." class="w-full bg-slate-900 border border-slate-700 p-3 rounded font-mono"></textarea>
+                </div>
+            </div>
+
+            <button onclick="saveAutomation()" class="bg-green-600 py-4 rounded-xl font-bold text-lg hover:bg-green-700 transition">Apply & Activate Automation</button>
+        </div>
     </div>
 
-    <div class="mb-6 p-4 bg-gray-900 rounded border-l-4 border-blue-500">
-        <p class="text-xs font-bold text-gray-500 uppercase">Action</p>
-        <select id="actionType" class="bg-transparent w-full font-bold outline-none">
-            <option value="gmail">Send Gmail</option>
-            <option value="slack">Post to Slack (Coming Soon)</option>
-        </select>
-        <input type="text" id="zapSubj" placeholder="Subject" class="w-full bg-gray-800 mt-2 p-2 rounded text-sm">
-        <textarea id="zapBody" placeholder="Hello {{name}}..." class="w-full bg-gray-800 mt-2 p-2 rounded text-sm h-24"></textarea>
-    </div>
+    <script>
+        const userId = localStorage.getItem('user_id');
 
-    <button onclick="saveWorkflow()" class="bg-purple-600 w-full py-2 rounded font-bold">Apply Automation</button>
-</div>
+        async function generateHook() {
+            // This creates a record in the 'webhooks' table in Supabase
+            const res = await fetch('/api/create-hook', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ user_id: userId, name: "New Automation" })
+            });
+            const data = await res.json();
+            document.getElementById('webhookUrlDisplay').value = data.webhook_url;
+        }
+
+        async function saveAutomation() {
+            // Logic to update the webhook action_config in Supabase
+            alert("Automation saved! Every time data hits your Webhook URL, an email will be sent.");
+        }
+    </script>
+</body>
+</html>

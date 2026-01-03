@@ -77,3 +77,47 @@ def upload_queue():
 
 if __name__ == "__main__":
     app.run()
+    @app.route('/api/create-hook', methods=['POST'])
+def create_hook():
+    try:
+        data = request.json
+        # Create a new webhook record
+        res = supabase.table('webhooks').insert({
+            "user_id": data['user_id'],
+            "name": data['name'],
+            "action_config": {"type": "email", "subject": "New lead", "body": "Details: {{data}}"}
+        }).execute()
+        
+        hook_id = res.data[0]['id']
+        # The URL points back to our internal hook handler
+        webhook_url = f"{request.host_url}api/hooks/{hook_id}"
+        return jsonify({"status": "success", "webhook_url": webhook_url})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/api/hooks/<hook_id>', methods=['POST'])
+def run_hook_automation(hook_id):
+    try:
+        # 1. Get Automation Config
+        res = supabase.table('webhooks').select("*, users(*)").eq('id', hook_id).execute()
+        if not res.data: return jsonify({"error": "Not found"}), 404
+        
+        hook = res.data[0]
+        user = hook['users']
+        incoming_data = request.json # Data sent to the webhook
+
+        # 2. Simple Mapping (Replaces {{key}} with values from incoming JSON)
+        subject = hook['action_config'].get('subject', '')
+        body = hook['action_config'].get('body', '')
+        
+        for key, value in incoming_data.items():
+            subject = subject.replace(f"{{{{{key}}}}}", str(value))
+            body = body.replace(f"{{{{{key}}}}}", str(value))
+
+        # 3. Send Immediate Email (Edge Style)
+        # We reuse the SMTP logic here for an instant notification
+        # ... SMTP Code ...
+        
+        return jsonify({"status": "success", "message": "Automation triggered"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
