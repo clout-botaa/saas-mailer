@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "bullmq": "^5.66.4",
+    "express": "^5.2.1",
+    "ioredis": "^5.8.2",
+    "multer": "^2.0.2",
+    "pdf-parse": "^2.4.5",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  },
+  "devDependencies": {
+    "prisma": "^5.22.0"
+  }
+}
