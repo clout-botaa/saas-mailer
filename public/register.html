@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - AutoMailer SaaS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 flex items-center justify-center h-screen">
+    <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-96 border border-gray-700">
+        <h1 class="text-2xl font-bold text-white mb-2 text-center">Create Account</h1>
+        <p class="text-gray-400 text-xs mb-6 text-center">Configure your Gmail settings</p>
+        
+        <input type="email" id="email" placeholder="Login Email" class="w-full mb-2 p-2 rounded bg-gray-700 text-white border border-gray-600">
+        <input type="password" id="password" placeholder="Login Password" class="w-full mb-4 p-2 rounded bg-gray-700 text-white border border-gray-600">
+        
+        <hr class="border-gray-600 mb-4">
+        
+        <input type="text" id="gmail_user" placeholder="Your Gmail Address" class="w-full mb-2 p-2 rounded bg-gray-700 text-white border border-gray-600">
+        <input type="password" id="gmail_pass" placeholder="Gmail App Password (16 chars)" class="w-full mb-6 p-2 rounded bg-gray-700 text-white border border-gray-600">
+
+        <button onclick="register()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded">Register</button>
+        <p class="text-gray-400 text-sm mt-4 text-center"><a href="/index.html" class="text-blue-400">Back to Login</a></p>
+    </div>
+
+    <script>
+        async function register() {
+            const data = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                gmail_user: document.getElementById('gmail_user').value,
+                gmail_pass: document.getElementById('gmail_pass').value
+            };
+
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+
+            const json = await res.json();
+            if(json.status === 'success') {
+                alert("Account created! Please login.");
+                window.location.href = '/index.html';
+            } else {
+                alert("Error: " + json.message);
+            }
+        }
+    </script>
+</body>
+</html>

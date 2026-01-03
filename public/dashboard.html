@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AutoMailer Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-10">
+    <div class="max-w-4xl mx-auto bg-white p-8 rounded shadow">
+        <div class="flex justify-between mb-6">
+            <h1 class="text-2xl font-bold">Interface 1: Email Automator</h1>
+            <div class="text-right">
+                <p class="text-sm text-gray-500">Daily Limit</p>
+                <p class="text-xl font-bold text-blue-600" id="limitDisplay">Loading...</p>
+            </div>
+        </div>
+
+        <div class="border-2 border-dashed p-6 text-center mb-6">
+            <input type="file" id="pdf" accept=".pdf" class="mb-4">
+            <input type="text" id="subj" placeholder="Subject ({{NAME}})" class="w-full border p-2 mb-2">
+            <textarea id="body" placeholder="Body ({{COMPANY}})" class="w-full border p-2 h-32"></textarea>
+            <button onclick="queueCampaign()" class="bg-blue-600 text-white px-6 py-2 rounded mt-4">
+                Start Automation (Auto-Queue)
+            </button>
+        </div>
+
+        <h3 class="font-bold mb-2">Live Queue Status</h3>
+        <div id="queueStats" class="bg-gray-50 p-4 rounded h-40 overflow-y-scroll font-mono text-sm">
+            <p>Loading stats...</p>
+        </div>
+    </div>
+
+    <script>
+        // Replace with the User ID you get from the Login Page
+        const USER_ID = "replace-with-uuid-from-login"; 
+
+        async function queueCampaign() {
+            const fd = new FormData();
+            fd.append('file', document.getElementById('pdf').files[0]);
+            fd.append('subject', document.getElementById('subj').value);
+            fd.append('body', document.getElementById('body').value);
+            fd.append('user_id', USER_ID);
+
+            alert("Uploading and analyzing... this may take a moment.");
+            
+            const res = await fetch('/api/upload-and-queue', {method: 'POST', body: fd});
+            const json = await res.json();
+            alert(json.message);
+            loadStats();
+        }
+
+        async function loadStats() {
+            // You would create a /api/stats endpoint to fetch this from Supabase
+            // For now, mocking it:
+            document.getElementById('limitDisplay').innerText = "200 / 500 Used";
+            document.getElementById('queueStats').innerHTML = `
+                <p>✅ 200 Emails sent today</p>
+                <p>⏳ 300 Scheduled for today</p>
+                <p>📅 1180 Queued for tomorrow (Auto-Resume active)</p>
+            `;
+        }
+        
+        loadStats();
+    </script>
+</body>
+</html>
