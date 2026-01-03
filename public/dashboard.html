@@ -2,104 +2,57 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard - SaaS Automator</title>
+    <title>SaaS Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 text-white min-h-screen">
-    <nav class="border-b border-gray-800 p-4 flex justify-between bg-gray-900 sticky top-0 z-50">
-        <h1 class="text-xl font-bold text-blue-400">SaaS Automator</h1>
-        <button onclick="logout()" class="text-sm text-gray-400 hover:text-white">Logout</button>
-    </nav>
-
-    <div class="max-w-6xl mx-auto p-6">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-                <p class="text-gray-400 text-xs uppercase font-bold">Used Today</p>
-                <h2 id="statUsed" class="text-2xl font-bold">0 / 500</h2>
+<body class="bg-slate-900 text-white p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="grid grid-cols-3 gap-6 mb-10">
+            <div class="bg-slate-800 p-6 rounded-lg border border-slate-700">
+                <p class="text-xs text-slate-400 uppercase">Used Today</p>
+                <h1 id="statUsed" class="text-3xl font-bold">0 / 500</h1>
             </div>
-            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-                <p class="text-gray-400 text-xs uppercase font-bold">In Queue</p>
-                <h2 id="statPending" class="text-2xl font-bold text-yellow-500">0</h2>
+            <div class="bg-slate-800 p-6 rounded-lg border border-slate-700">
+                <p class="text-xs text-slate-400 uppercase">Pending in Queue</p>
+                <h1 id="statPending" class="text-3xl font-bold text-yellow-500">0</h1>
             </div>
-            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-                <p class="text-gray-400 text-xs uppercase font-bold">Total Sent</p>
-                <h2 id="statSent" class="text-2xl font-bold text-green-500">0</h2>
-            </div>
-            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-                <p class="text-gray-400 text-xs uppercase font-bold">Failed</p>
-                <h2 id="statFailed" class="text-2xl font-bold text-red-500">0</h2>
+            <div class="bg-slate-800 p-6 rounded-lg border border-slate-700">
+                <p class="text-xs text-slate-400 uppercase">Successful</p>
+                <h1 id="statSent" class="text-3xl font-bold text-green-500">0</h1>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 bg-gray-800 p-6 rounded-xl shadow-xl">
-                <h2 class="text-lg font-bold mb-4">Launch New Campaign</h2>
-                <div class="space-y-4">
-                    <input type="file" id="pdfFile" accept=".pdf" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-blue-600 file:text-white">
-                    <input type="text" id="subject" placeholder="Email Subject (use {{NAME}}, {{COMPANY}})" class="w-full bg-gray-900 border border-gray-700 p-3 rounded">
-                    <textarea id="body" rows="10" placeholder="Email Body (HTML Supported)" class="w-full bg-gray-900 border border-gray-700 p-3 rounded font-mono"></textarea>
-                    <button id="btnLaunch" onclick="launchCampaign()" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold text-lg">Queue Emails</button>
-                </div>
-            </div>
-
-            <div class="bg-gray-800 p-6 rounded-xl">
-                <h2 class="text-lg font-bold mb-4">Automation Status</h2>
-                <div class="space-y-4 text-sm">
-                    <div class="p-3 bg-gray-900 rounded border border-blue-900">
-                        <p class="text-blue-300 font-bold">ℹ️ Smart Queueing Active</p>
-                        <p class="text-gray-400 mt-1">If you upload > 500 contacts, the system will automatically send the first 500 today and resume exactly 24 hours later.</p>
-                    </div>
-                    <div id="statusLogs" class="space-y-2">
-                        </div>
-                </div>
-            </div>
+        <div class="bg-slate-800 p-8 rounded-xl border border-slate-700">
+            <h2 class="text-xl font-bold mb-6">Create Campaign</h2>
+            <input type="file" id="pdf" class="block w-full text-sm text-slate-400 mb-4">
+            <input type="text" id="subject" placeholder="Subject" class="w-full bg-slate-900 border border-slate-700 p-3 rounded mb-4">
+            <textarea id="body" rows="8" placeholder="HTML Body" class="w-full bg-slate-900 border border-slate-700 p-3 rounded mb-6 font-mono"></textarea>
+            <button onclick="queueCampaign()" class="w-full bg-blue-600 py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition">Start Smart Queueing</button>
         </div>
     </div>
 
     <script>
         const userId = localStorage.getItem('user_id');
-        if(!userId) window.location.href = '/index.html';
-
-        async function fetchStats() {
+        async function getStats() {
             const res = await fetch(`/api/user-stats/${userId}`);
             const data = await res.json();
             document.getElementById('statUsed').innerText = `${data.used_today} / ${data.daily_limit}`;
             document.getElementById('statPending').innerText = data.pending;
             document.getElementById('statSent').innerText = data.sent;
-            document.getElementById('statFailed').innerText = data.failed;
         }
-
-        async function launchCampaign() {
-            const btn = document.getElementById('btnLaunch');
-            const file = document.getElementById('pdfFile').files[0];
-            if(!file) return alert("Select PDF");
-
-            btn.disabled = true;
-            btn.innerText = "Extracting & Queueing...";
-
+        async function queueCampaign() {
             const fd = new FormData();
-            fd.append('file', file);
+            fd.append('file', document.getElementById('pdf').files[0]);
             fd.append('user_id', userId);
             fd.append('subject', document.getElementById('subject').value);
-            fd.append('body', document.getElementById('body').value.replace(/\n/g, "<br>"));
-
+            fd.append('body', document.getElementById('body').value.replace(/\n/g, '<br>'));
             const res = await fetch('/api/upload-and-queue', { method: 'POST', body: fd });
             const json = await res.json();
-            
             alert(json.message);
-            btn.disabled = false;
-            btn.innerText = "Queue Emails";
-            fetchStats();
+            getStats();
         }
-
-        function logout() {
-            localStorage.clear();
-            window.location.href = '/index.html';
-        }
-
-        // Refresh stats every 30 seconds
-        setInterval(fetchStats, 30000);
-        fetchStats();
+        setInterval(getStats, 10000);
+        getStats();
     </script>
 </body>
 </html>

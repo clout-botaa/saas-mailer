@@ -1,0 +1,21 @@
+<div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+    <h2 class="text-xl font-bold mb-4 text-purple-400">Interface 2: Workflow Builder</h2>
+    
+    <div class="mb-6 p-4 bg-gray-900 rounded border-l-4 border-purple-500">
+        <p class="text-xs font-bold text-gray-500 uppercase">Trigger</p>
+        <p class="font-bold">Webhook (Instant Catch)</p>
+        <code id="hookUrl" class="text-xs text-green-400">Loading URL...</code>
+    </div>
+
+    <div class="mb-6 p-4 bg-gray-900 rounded border-l-4 border-blue-500">
+        <p class="text-xs font-bold text-gray-500 uppercase">Action</p>
+        <select id="actionType" class="bg-transparent w-full font-bold outline-none">
+            <option value="gmail">Send Gmail</option>
+            <option value="slack">Post to Slack (Coming Soon)</option>
+        </select>
+        <input type="text" id="zapSubj" placeholder="Subject" class="w-full bg-gray-800 mt-2 p-2 rounded text-sm">
+        <textarea id="zapBody" placeholder="Hello {{name}}..." class="w-full bg-gray-800 mt-2 p-2 rounded text-sm h-24"></textarea>
+    </div>
+
+    <button onclick="saveWorkflow()" class="bg-purple-600 w-full py-2 rounded font-bold">Apply Automation</button>
+</div>
