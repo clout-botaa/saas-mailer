@@ -7,7 +7,9 @@
     "start": "node api.js",
     "dev": "nodemon api.js",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev --name init"
+    "prisma:migrate": "prisma migrate dev --name init",
+    "prisma:generate-dev": "prisma generate --schema=../prisma/schema.dev.prisma",
+    "prisma:migrate-dev": "prisma migrate dev --schema=../prisma/schema.dev.prisma --name init"
   },
   "dependencies": {
     "@prisma/client": "^5.0.0",
