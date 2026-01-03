@@ -75,9 +75,7 @@ def upload_queue():
 
     return jsonify({"status": "success", "message": f"Queued {len(contacts)} emails."})
 
-if __name__ == "__main__":
-    app.run()
-    @app.route('/api/create-hook', methods=['POST'])
+@app.route('/api/create-hook', methods=['POST'])
 def create_hook():
     try:
         data = request.json
