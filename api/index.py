@@ -38,6 +38,10 @@ def login():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 400
 
+@app.route('/api/')
+def api_home():
+    return jsonify({"status": "API is running", "version": "1.0"}), 200
+
 # --- DASHBOARD & QUEUE ---
 @app.route('/api/user-stats/<user_id>', methods=['GET'])
 def get_stats(user_id):
