@@ -1,0 +1,30 @@
+name: AutoMailer Bot
+
+on:
+  schedule:
+    # Runs every hour at minute 0 (e.g., 1:00, 2:00, 3:00)
+    # You can change this to '0 0 * * *' for once a day at midnight
+    - cron: '0 * * * *'
+  workflow_dispatch: # Allows you to run it manually button click
+
+jobs:
+  run-mailer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: |
+          pip install supabase
+
+      - name: Run Automation Script
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python worker/run_batch.py
