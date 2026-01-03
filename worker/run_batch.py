@@ -102,4 +102,16 @@ def run_batch():
             print(f"  -> Critical SMTP Error: {e}")
 
 if __name__ == "__main__":
+        # --- CLEANUP LOGIC ---
+# Delete all 'sent' records for this user except the most recent 4
+    sent_records = supabase.table('email_queue')\
+    .select("id")\
+    .eq('user_id', user['id'])\
+    .eq('status', 'sent')\
+    .order('created_at', desc=True)\
+    .execute().data
+
+if len(sent_records) > 4:
+    ids_to_delete = [r['id'] for r in sent_records[4:]]
+    supabase.table('email_queue').delete().in_('id', ids_to_delete).execute()
     run_batch()
